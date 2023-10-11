@@ -1,4 +1,4 @@
-package br.com.jcorreaw.ToDoList;
+package br.com.jcorreaw.toDoList;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

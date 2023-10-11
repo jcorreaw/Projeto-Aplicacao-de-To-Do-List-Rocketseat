@@ -1,4 +1,4 @@
-package br.com.jcorreaw.ToDoList.user;
+package br.com.jcorreaw.toDoList.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
