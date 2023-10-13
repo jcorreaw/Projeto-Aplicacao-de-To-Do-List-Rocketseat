@@ -25,13 +25,13 @@ public class TaskController {
 
         var currentDate = LocalDateTime.now();
         if (currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body("A data de início / data de término deve ser maior do que a atual");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A data de início / data de término deve ser maior do que a atual");
         }
 
         if (taskModel.getStartAt().isAfter(taskModel.getEndAt())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body("A data de início deve ser maior do que a data de término");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A data de início deve ser maior do que a data de término");
         }
         var task = this.taskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body(task);
@@ -44,12 +44,22 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskModel update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
+    public ResponseEntity update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
+        var task = this.taskRepository.findById(id).orElse(null);
         var idUser = request.getAttribute("idUser");
 
-        var task = this.taskRepository.findById(id).orElse(null);
-        Utils.copyNonNullProperties(taskModel, task);
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Tarefa não encontrada");
+        }
 
-        return this.taskRepository.save(task);
+        if (!task.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Usuário não tem permissão para alterar essa tarefa");
+        }
+
+        Utils.copyNonNullProperties(taskModel, task);
+        var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.ok().body(taskUpdated);
     }
 }
